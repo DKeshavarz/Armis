@@ -1,5 +1,4 @@
-### grayCat ###
-# we just meow here my friend 
+### Armis ###
 
 # Binaries for programs and plugins
 *.exe
@@ -18,3 +17,4 @@
 go.work
 
 # custom files
+.env
