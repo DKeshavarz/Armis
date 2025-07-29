@@ -1,2 +1,2 @@
-package servise
+package server
 
