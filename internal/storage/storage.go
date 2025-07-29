@@ -6,7 +6,7 @@ type storageServise struct {
 	//TODO:
 }
 
-func NewServise()*storageServise{
+func NewStorage()*storageServise{
 	return &storageServise{
 		
 	}
