@@ -1,19 +1,25 @@
 package commands
 
-import "github.com/DKeshavarz/armis/internal/storage"
+import (
+	"context"
+
+	"github.com/DKeshavarz/armis/internal/servise"
+)
 
 type PutCommand struct {
-	Store *storage.StorageInterface
+	servise servise.ServiceInterfase
 }
 
 func (c *PutCommand) Execute(args []string)(string, error){
-	return "exe put", nil
+	ctx := context.Background()
+	err := c.servise.Put(ctx, args[0], args[1])
+	return "Done", err
 }
 
 //****************************************************************************//
 
 type GetCommand struct {
-	Store *storage.StorageInterface
+	servise servise.ServiceInterfase
 }
 
 func (c *GetCommand) Execute(args []string)(string, error){
@@ -23,7 +29,7 @@ func (c *GetCommand) Execute(args []string)(string, error){
 //****************************************************************************//
 
 type DelCommand struct {
-	Store *storage.StorageInterface
+	servise servise.ServiceInterfase
 }
 
 func (c *DelCommand) Execute(args []string)(string, error){

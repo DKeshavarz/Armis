@@ -10,7 +10,7 @@ type service struct {
 	storage storage.StorageInterface
 }
 
-func NewServise()*service{
+func New()*service{
 	st := storage.NewStorage()
 	return &service{
 		storage: st,
