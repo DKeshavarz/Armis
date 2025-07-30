@@ -3,7 +3,6 @@ package commands
 import (
 	"bufio"
 	"fmt"
-	"log"
 	"os"
 	"strings"
 
@@ -31,12 +30,17 @@ func(c *commandsServise)Run() error{
 		fmt.Print("$ ")
 		commands, err := c.read()
 		if err != nil{
-			log.Fatalf("error in reading: %s", err)
+			return fmt.Errorf("error in reading: %s", err)
+		}
+
+		if len(commands) == 1 && commands[0] == "exit" {
+			break
 		}
 
 		res, err := c.execute(commands)
 		c.show(res, err)
 	}
+	return nil
 }
 
 func(c *commandsServise)register(command string, handle Command){
