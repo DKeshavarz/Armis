@@ -18,11 +18,11 @@ func New()*service{
 }
 
 func (s *service)Put(ctx context.Context, key, value string) error{
-	return nil
+	return s.storage.Put(ctx, key, value)
 }
 func (s *service)Get(ctx context.Context, key string) (string, error){
-	return "",nil
+	return s.storage.Get(ctx, key)
 }
 func (s *service)Delete(ctx context.Context, key string) error{
-	return nil
+	return s.storage.Delete(ctx, key)
 }
