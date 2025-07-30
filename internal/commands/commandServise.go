@@ -13,7 +13,7 @@ type commandsServise struct {
 	registery map[string]Command
 }
 
-func New(mainServise servise.ServiceInterfase)*commandsServise {
+func New(mainServise servise.ServiceInterfase) *commandsServise {
 	cmd := &commandsServise{
 		map[string]Command{},
 	}
@@ -21,15 +21,16 @@ func New(mainServise servise.ServiceInterfase)*commandsServise {
 	cmd.register("get", &GetCommand{mainServise})
 	cmd.register("put", &PutCommand{mainServise})
 	cmd.register("del", &DelCommand{mainServise})
+	cmd.register("delete", &DelCommand{mainServise})
 
 	return cmd
 }
 
-func(c *commandsServise)Run() error{
+func (c *commandsServise) Run() error {
 	for {
 		fmt.Print("$ ")
 		commands, err := c.read()
-		if err != nil{
+		if err != nil {
 			return fmt.Errorf("error in reading: %s", err)
 		}
 
@@ -43,11 +44,11 @@ func(c *commandsServise)Run() error{
 	return nil
 }
 
-func(c *commandsServise)register(command string, handle Command){
+func (c *commandsServise) register(command string, handle Command) {
 	c.registery[command] = handle
 }
 
-func(c *commandsServise) execute(args []string) (string, error){
+func (c *commandsServise) execute(args []string) (string, error) {
 	cmd, ok := c.registery[args[0]]
 	if !ok {
 		return "", ErrUnknownCommand
@@ -56,15 +57,15 @@ func(c *commandsServise) execute(args []string) (string, error){
 	return cmd.Execute(args[1:])
 }
 
-func (c *commandsServise)read()([]string, error){
+func (c *commandsServise) read() ([]string, error) {
 	reader := bufio.NewReader(os.Stdin)
 	msg, err := reader.ReadString('\n')
 	return strings.Fields(msg), err
 }
 
-func (c *commandsServise)show(respons string, err error){
+func (c *commandsServise) show(respons string, err error) {
 	if err != nil {
-		fmt.Printf(Red + "err -> %s\n" + Reset, err)
+		fmt.Printf(Red+"err -> %s\n"+Reset, err)
 		return
 	}
 	fmt.Println(respons)
