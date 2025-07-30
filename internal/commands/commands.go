@@ -2,6 +2,7 @@ package commands
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/DKeshavarz/armis/internal/servise"
 )
@@ -16,7 +17,7 @@ func (c *PutCommand) Execute(args []string)(string, error){
 	}
 	ctx := context.Background()
 	err := c.servise.Put(ctx, args[0], args[1])
-	return "Done", err
+	return fmt.Sprintf("%s=%s",args[0], args[1]), err
 }
 
 //****************************************************************************//
@@ -26,7 +27,12 @@ type GetCommand struct {
 }
 
 func (c *GetCommand) Execute(args []string)(string, error){
-	return "exe get", nil
+	if len(args) != 1 {
+		return  "", ErrNotSuitableArgs
+	}
+	ctx := context.Background()
+	value, err := c.servise.Get(ctx, args[0])
+	return fmt.Sprintf("%s=%s",args[0], value), err
 }
 
 //****************************************************************************//
@@ -36,5 +42,12 @@ type DelCommand struct {
 }
 
 func (c *DelCommand) Execute(args []string)(string, error){
-	return "exe del", nil
+	if len(args) != 1 {
+		return  "", ErrNotSuitableArgs
+	}
+	ctx := context.Background()
+	err := c.servise.Delete(ctx, args[0])
+	return fmt.Sprintf("key [%s] deleted",args[0]), err
 }
+
+//****************************************************************************//
