@@ -11,6 +11,9 @@ type PutCommand struct {
 }
 
 func (c *PutCommand) Execute(args []string)(string, error){
+	if len(args) != 2 {
+		return  "", ErrNotSuitableArgs
+	}
 	ctx := context.Background()
 	err := c.servise.Put(ctx, args[0], args[1])
 	return "Done", err

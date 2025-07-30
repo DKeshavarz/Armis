@@ -1,7 +1,10 @@
 package commands
 
 import (
+	"bufio"
 	"fmt"
+	"log"
+	"os"
 	"strings"
 
 	"github.com/DKeshavarz/armis/internal/servise"
@@ -19,21 +22,20 @@ func New()*commandsServise {
 	cmd.register("get", &GetCommand{mainServise})
 	cmd.register("put", &PutCommand{mainServise})
 	cmd.register("del", &DelCommand{mainServise})
+
 	return cmd
 }
 
 func(c *commandsServise)Run() error{
-	var str string
 	for {
 		fmt.Print("$ ")
-		fmt.Scan(&str)
-		res, err := c.execute(c.extractor(str))
-		
-		if err != nil {
-			fmt.Println("err:", err)
-		}else{
-			fmt.Println(res)
+		commands, err := c.read()
+		if err != nil{
+			log.Fatalf("error in reading: %s", err)
 		}
+
+		res, err := c.execute(commands)
+		c.show(res, err)
 	}
 }
 
@@ -46,10 +48,20 @@ func(c *commandsServise) execute(args []string) (string, error){
 	if !ok {
 		return "", ErrUnknownCommand
 	}
-	
+
 	return cmd.Execute(args[1:])
 }
 
-func (c *commandsServise)extractor(input string)[]string{
-	return strings.Fields(input)
+func (c *commandsServise)read()([]string, error){
+	reader := bufio.NewReader(os.Stdin)
+	msg, err := reader.ReadString('\n')
+	return strings.Fields(msg), err
+}
+
+func (c *commandsServise)show(respons string, err error){
+	if err != nil {
+		fmt.Printf("err -> %s\n", err)
+		return
+	}
+	fmt.Println(respons)
 }
