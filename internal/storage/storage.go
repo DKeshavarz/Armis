@@ -1,25 +1,43 @@
 package storage
 
-import "context"
+import (
+	"context"
+	"sync"
+	"time"
+)
 
-type storageServise struct {
-	//TODO:
+type storage struct {
+	mutex        sync.RWMutex
+	data         map[string]string
+	autoSave     bool
+	saveInterval time.Duration
 }
 
-func New()*storageServise{
-	return &storageServise{
-		
+func New() *storage {
+	return &storage{
+		data: map[string]string{},
 	}
 }
-func (s *storageServise)Put(ctx context.Context, key, value string) error{
-	// TODO
-	return  nil
+func (s *storage) Put(ctx context.Context, key, value string) error {
+	s.mutex.Lock()
+	defer s.mutex.Unlock()
+
+	s.data[key] = value
+	return nil
 }
-func (s *storageServise)Get(ctx context.Context, key string) (string, error){
-	// TODO
-	return "", nil
+func (s *storage) Get(ctx context.Context, key string) (string, error) {
+	s.mutex.RLock()
+	defer s.mutex.RUnlock()
+
+	val, ok := s.data[key]
+	if !ok {
+		return "moew", ErrKeyNotFound
+	}
+	return val, nil
 }
-func (s *storageServise)Delete(ctx context.Context, key string) error{
-	// TODO
-	return  nil
+func (s *storage) Delete(ctx context.Context, key string) error {
+	s.mutex.Lock()
+	defer s.mutex.Unlock()
+	delete(s.data, key)
+	return nil
 }
