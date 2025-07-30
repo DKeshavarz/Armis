@@ -64,7 +64,7 @@ func (c *commandsServise)read()([]string, error){
 
 func (c *commandsServise)show(respons string, err error){
 	if err != nil {
-		fmt.Printf("err -> %s\n", err)
+		fmt.Printf(Red + "err -> %s\n" + Reset, err)
 		return
 	}
 	fmt.Println(respons)
