@@ -13,11 +13,11 @@ type commandsServise struct {
 	registery map[string]Command
 }
 
-func New()*commandsServise {
+func New(mainServise servise.ServiceInterfase)*commandsServise {
 	cmd := &commandsServise{
 		map[string]Command{},
 	}
-	mainServise := servise.New()
+
 	cmd.register("get", &GetCommand{mainServise})
 	cmd.register("put", &PutCommand{mainServise})
 	cmd.register("del", &DelCommand{mainServise})
