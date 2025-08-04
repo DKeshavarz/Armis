@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/DKeshavarz/armis/internal/commands"
+	"github.com/DKeshavarz/armis/internal/config"
 	"github.com/DKeshavarz/armis/internal/server"
 	"github.com/DKeshavarz/armis/internal/servise"
 )
@@ -28,7 +29,7 @@ func main() {
 
 	server := server.New(servise)
 	srv := &http.Server{
-		Addr:    ":8080",
+		Addr:    ":" + config.GetFromEnv("PORT"),
 		Handler: server,
 	}
 	go func() {
