@@ -1,3 +1,4 @@
 # Armis
 
-Hello, I am dev
+Hello, I am Armis
+Redis, but funner
