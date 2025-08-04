@@ -1,4 +1,4 @@
-# grayCat
-I am alive and puring 
-
 # Armis
+
+Hello, I am Armis
+Redis, but funner
