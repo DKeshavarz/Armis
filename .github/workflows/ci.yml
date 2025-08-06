@@ -42,12 +42,9 @@ jobs:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
         
-    - uses: vishalmamidi/lowercase-action@v1
-      with:
-        string: ${{ github.event.repository.name }}
-
     - name: log lowercase repo name
-      run: echo ${{ steps.string.outputs.lowercase }}
+      run: |
+          echo "REPO=${GITHUB_REPOSITORY,,}" >>${GITHUB_ENV}
 
     - name: Build and Push Docker Image
       uses: docker/build-push-action@v5
@@ -55,4 +52,4 @@ jobs:
         context: .
         file: ./Dockerfile
         push: true
-        tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest 
+        tags: ${{ env.REGISTRY }}/${{ env.REPO }}:latest 
