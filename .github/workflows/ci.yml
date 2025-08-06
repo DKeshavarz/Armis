@@ -1,0 +1,12 @@
+name: Test ci feacher/github-action
+
+on:
+  push:
+    branches:
+      - feacher/github-action
+jobs:
+  Hello:
+    runs-on: ubunto
+    steps:
+      - name: say Hello
+        run: echo "kfkfkfkfkf"
