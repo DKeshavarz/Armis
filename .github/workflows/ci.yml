@@ -2,7 +2,7 @@ name: Go CI
 
 on:
   push:
-    branches: [ "main" , "feacher/github-action"]
+    branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
 
