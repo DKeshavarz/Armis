@@ -6,7 +6,7 @@ on:
       - feacher/github-action
 jobs:
   Hello:
-    runs-on: ubunto
+    runs-on: ubuntu-latest
     steps:
       - name: say Hello
         run: echo "kfkfkfkfkf"
