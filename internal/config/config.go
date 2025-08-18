@@ -17,6 +17,6 @@ func GetFromEnv(key string) string {
 func Load(file string){
 	err := godotenv.Load(file)
 	if err != nil {
-		log.Fatalf("Error in loading .env : %s", err)
+		log.Printf("Error in loading .env : %s", err)
 	}
 }
