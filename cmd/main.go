@@ -33,6 +33,7 @@ func main() {
 		Handler: server,
 	}
 	go func() {
+		log.Printf("web server started on %s", config.GetFromEnv("PORT"))
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			log.Fatalf("listen: %s\n", err)
 		}
