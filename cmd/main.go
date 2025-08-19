@@ -19,7 +19,12 @@ func main() {
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
 	
-	storage := storage.New(true, 100, "storage.json")
+	storage := storage.New(
+		config.GetEnvAsBool("STORAGE_AUTO_SAVE", false), 
+		config.GetEnvAsInt("STORAGE_SAVE_INTERVAL", 100), 
+		config.GetEnv("STORAGE_FILE_PATH", "storage.json"),
+	)
+	
 	servise := servise.New(storage)
 
 	cmd := commands.New(servise)
@@ -31,11 +36,11 @@ func main() {
 
 	server := server.New(servise)
 	srv := &http.Server{
-		Addr:    ":" + config.GetFromEnv("PORT"),
+		Addr:    ":" + config.GetEnv("PORT", "5432"),
 		Handler: server,
 	}
 	go func() {
-		log.Printf("web server started on %s", config.GetFromEnv("PORT"))
+		log.Printf("web server started on %s", config.GetEnv("PORT", "5432"))
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			log.Printf("listen: %s\n", err)
 		}
