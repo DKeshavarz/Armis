@@ -19,7 +19,7 @@ func main() {
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
 	
-	storage := storage.New(true, 10, ".data.json")
+	storage := storage.New(true, 100, "storage.json")
 	servise := servise.New(storage)
 
 	cmd := commands.New(servise)
@@ -43,13 +43,16 @@ func main() {
 	
 	<-ctx.Done()
 	stop()
-	log.Println("shutting down gracefully, press Ctrl+C again to force")
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	if err := srv.Shutdown(ctx); err != nil {
-		log.Fatal("Server forced to shutdown: ", err)
+		log.Printf("Server forced to shutdown: %s", err.Error())
 	}
 
+	if err := storage.Close(); err != nil {
+		log.Fatalf("Storage shutdown with error %s", err.Error())
+	}
 
-	log.Println("Server exiting")
+	log.Println("grasfully shutdwn")
 }

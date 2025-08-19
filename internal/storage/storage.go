@@ -15,21 +15,23 @@ type storage struct {
 	autoSave     bool
 	saveInterval time.Duration
 	filePath     string
+	done         chan struct{}
 }
 
 func New(autoSave bool, saveInterval int, filePath string) *storage {
-	s :=  &storage{
-		data: map[string]string{},
-		autoSave: autoSave,
+	s := &storage{
+		data:         map[string]string{},
+		autoSave:     autoSave,
 		saveInterval: time.Duration(saveInterval) * time.Second,
-		filePath: filePath,
+		filePath:     filePath,
 	}
 
-	if err := s.load() ; err != nil {
+	if err := s.load(); err != nil {
 		log.Printf("err in reading file in package storage %s", err.Error())
 	}
 
 	if s.autoSave {
+		s.done = make(chan struct{})
 		go s.autosaver()
 	}
 	return s
@@ -61,7 +63,7 @@ func (s *storage) Delete(ctx context.Context, key string) error {
 	return nil
 }
 
-func (s *storage) save() error{
+func (s *storage) save() error {
 	s.mutex.RLock()
 	defer s.mutex.RUnlock()
 
@@ -73,8 +75,8 @@ func (s *storage) save() error{
 	if err != nil {
 		return err
 	}
-	
-	return  os.WriteFile(s.filePath, data, 0777)
+
+	return os.WriteFile(s.filePath, data, 0777)
 }
 
 func (s *storage) load() error {
@@ -99,9 +101,25 @@ func (s *storage) load() error {
 func (s *storage) autosaver() {
 	ticker := time.NewTicker(s.saveInterval)
 
-	for range ticker.C {
-		if err := s.save(); err != nil {
-			log.Printf("get error in saving in package storage : %s\n", err.Error())
+	for {
+		select {
+		case <- ticker.C:
+			if err := s.save(); err != nil {
+				log.Printf("get error in saving in package storage : %s\n", err.Error())
+			}
+		case <- s.done:
+			return
 		}
 	}
+}
+
+func (s *storage) Close() error {
+	if s.autoSave {
+		close(s.done)
+		if err := s.save(); err != nil {
+			log.Printf("get error in saving in package storage from grasfull shutdown: %s\n", err.Error())
+			return err
+		}
+	}
+	return nil
 }
