@@ -3,6 +3,7 @@ package storage
 import (
 	"context"
 	"encoding/json"
+	"log"
 	"os"
 	"sync"
 	"time"
@@ -17,9 +18,21 @@ type storage struct {
 }
 
 func New() *storage {
-	return &storage{
+	s :=  &storage{
 		data: map[string]string{},
+		autoSave: true,
+		saveInterval: 2 * time.Second,
+		filePath: "data.json",
 	}
+
+	if err := s.load() ; err != nil {
+		log.Printf("err in reading file in package storage %s", err.Error())
+	}
+
+	if s.autoSave {
+		go s.autosaver()
+	}
+	return s
 }
 
 func (s *storage) Put(ctx context.Context, key, value string) error {
@@ -61,7 +74,7 @@ func (s *storage) save() error{
 		return err
 	}
 	
-	return  os.WriteFile(s.filePath, data, 0664)
+	return  os.WriteFile(s.filePath, data, 0777)
 }
 
 func (s *storage) load() error {
@@ -81,4 +94,14 @@ func (s *storage) load() error {
 	}
 
 	return json.Unmarshal(data, &s.data)
+}
+
+func (s *storage) autosaver() {
+	ticker := time.NewTicker(s.saveInterval)
+
+	for range ticker.C {
+		if err := s.save(); err != nil {
+			log.Printf("get error in saving in package storage : %s\n", err.Error())
+		}
+	}
 }
