@@ -17,12 +17,12 @@ type storage struct {
 	filePath     string
 }
 
-func New() *storage {
+func New(autoSave bool, saveInterval int, filePath string) *storage {
 	s :=  &storage{
 		data: map[string]string{},
-		autoSave: true,
-		saveInterval: 2 * time.Second,
-		filePath: "data.json",
+		autoSave: autoSave,
+		saveInterval: time.Duration(saveInterval) * time.Second,
+		filePath: filePath,
 	}
 
 	if err := s.load() ; err != nil {

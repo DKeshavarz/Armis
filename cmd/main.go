@@ -12,13 +12,15 @@ import (
 	"github.com/DKeshavarz/armis/internal/config"
 	"github.com/DKeshavarz/armis/internal/server"
 	"github.com/DKeshavarz/armis/internal/servise"
+	"github.com/DKeshavarz/armis/internal/storage"
 )
 
 func main() {
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
 	
-	servise := servise.New()
+	storage := storage.New(true, 10, ".data.json")
+	servise := servise.New(storage)
 
 	cmd := commands.New(servise)
 	go func(){
