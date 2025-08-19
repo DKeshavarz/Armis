@@ -62,8 +62,8 @@ func (s *storage) Delete(ctx context.Context, key string) error {
 }
 
 func (s *storage) save() error{
-	s.mutex.Lock()
-	defer s.mutex.Unlock()
+	s.mutex.RLock()
+	defer s.mutex.RUnlock()
 
 	if s.filePath == "" {
 		return ErrPathNotSet
