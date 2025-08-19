@@ -13,7 +13,7 @@ type storage struct {
 	data         map[string]string
 	autoSave     bool
 	saveInterval time.Duration
-	filepath     string
+	filePath     string
 }
 
 func New() *storage {
@@ -52,7 +52,7 @@ func (s *storage) save() error{
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
 
-	if s.filepath == "" {
+	if s.filePath == "" {
 		return ErrPathNotSet
 	}
 
@@ -61,5 +61,24 @@ func (s *storage) save() error{
 		return err
 	}
 	
-	return  os.WriteFile(s.filepath, data, 0664)
+	return  os.WriteFile(s.filePath, data, 0664)
+}
+
+func (s *storage) load() error {
+	s.mutex.Lock()
+	defer s.mutex.Unlock()
+
+	if s.filePath == "" {
+		return ErrPathNotSet
+	}
+
+	data, err := os.ReadFile(s.filePath)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return ErrNoFileExist
+		}
+		return err
+	}
+
+	return json.Unmarshal(data, &s.data)
 }
