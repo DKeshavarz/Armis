@@ -1,0 +1,192 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "Simple key-value store service with CRUD operations.",
+        "title": "Armis Key-Value Store API",
+        "termsOfService": "http://swagger.io/terms/",
+        "contact": {
+            "name": "Armis Dev Team",
+            "url": "https://github.com/DKeshavarz/armis",
+            "email": "dankeshavarz1075@example.com"
+        },
+        "version": "0.8.0"
+    },
+    "basePath": "/",
+    "paths": {
+        "/client/{key}": {
+            "get": {
+                "description": "Returns the value associated with a key",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "client"
+                ],
+                "summary": "Get a value",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Key to look up",
+                        "name": "key",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/client.ValueResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/client.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Stores a value under the given key",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "client"
+                ],
+                "summary": "Store or update a value",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Key to store",
+                        "name": "key",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Request body with value",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/client.PutValueRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/client.MessageResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/client.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/client.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Deletes the key and its value",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "client"
+                ],
+                "summary": "Delete a key",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Key to delete",
+                        "name": "key",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/client.MessageResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/client.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "client.ErrorResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string",
+                    "example": "error message"
+                }
+            }
+        },
+        "client.MessageResponse": {
+            "type": "object",
+            "properties": {
+                "key": {
+                    "type": "string",
+                    "example": "your-key"
+                },
+                "message": {
+                    "type": "string",
+                    "example": "key stored"
+                },
+                "value": {
+                    "type": "string",
+                    "example": "your-value"
+                }
+            }
+        },
+        "client.PutValueRequest": {
+            "type": "object",
+            "properties": {
+                "value": {
+                    "type": "string",
+                    "example": "value"
+                }
+            }
+        },
+        "client.ValueResponse": {
+            "type": "object",
+            "properties": {
+                "key": {
+                    "type": "string",
+                    "example": "key"
+                },
+                "value": {
+                    "type": "string",
+                    "example": "value"
+                }
+            }
+        }
+    },
+    "tags": [
+        {
+            "description": "Operations for managing key-value pairs as a client",
+            "name": "client"
+        }
+    ]
+}
