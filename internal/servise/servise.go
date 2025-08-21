@@ -14,8 +14,7 @@ type service struct {
 	storage storage.StorageInterface
 }
 
-func New()*service{
-	st := storage.New()
+func New(st storage.StorageInterface)*service{
 	tmp_id := uuid.New().String()
 	return &service{
 		id: tmp_id,
