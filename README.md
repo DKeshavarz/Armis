@@ -1,5 +1,4 @@
 # Armis
-
 Armis is a lightweight, fully distributed key-value database with put, get, and delete operations. It supports CLI, HTTP API (with Swagger), and upcoming gRPC. Built in Go with in-memory storage (persistent/distributed features in development).
 
 ## Features

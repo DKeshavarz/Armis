@@ -15,40 +15,52 @@ import (
 	"github.com/DKeshavarz/armis/internal/config"
 	"github.com/DKeshavarz/armis/internal/server"
 	"github.com/DKeshavarz/armis/internal/servise"
+	"github.com/DKeshavarz/armis/internal/storage"
 )
 
 func main() {
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
 	
-	servise := servise.New()
+	storage := storage.New(
+		config.GetEnvAsBool("STORAGE_AUTO_SAVE", false), 
+		config.GetEnvAsInt("STORAGE_SAVE_INTERVAL", 100), 
+		config.GetEnv("STORAGE_FILE_PATH", "storage.json"),
+	)
+	
+	servise := servise.New(storage)
 
 	cmd := commands.New(servise)
 	go func(){
 		if err := cmd.Run(); err != nil {
-			log.Fatalf("error in command service: %s", err)
+			log.Printf("error in command service: %s", err)
 		}
 	}()
 
 	server := server.New(servise)
 	srv := &http.Server{
-		Addr:    ":" + config.GetFromEnv("PORT"),
+		Addr:    ":" + config.GetEnv("PORT", "5432"),
 		Handler: server,
 	}
 	go func() {
+		log.Printf("web server started on %s", config.GetEnv("PORT", "5432"))
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			log.Fatalf("listen: %s\n", err)
+			log.Printf("listen: %s\n", err)
 		}
 	}()
 	
 	<-ctx.Done()
 	stop()
-	log.Println("shutting down gracefully, press Ctrl+C again to force")
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	if err := srv.Shutdown(ctx); err != nil {
-		log.Fatal("Server forced to shutdown: ", err)
+		log.Printf("Server forced to shutdown: %s", err.Error())
 	}
 
-	log.Println("Server exiting")
+	if err := storage.Close(); err != nil {
+		log.Fatalf("Storage shutdown with error %s", err.Error())
+	}
+
+	log.Println("grasfully shutdwn")
 }

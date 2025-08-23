@@ -20,3 +20,5 @@ go.work
 .env
 src.md
 *.sh
+storage.json
+
