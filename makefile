@@ -17,6 +17,10 @@ all: build ## Build the project (default)
 compile: ## Compile (without installing)
 	go build -o $(BUILD_DIR)/$(BINARY_NAME) $(MAIN)
 
+build: clean compile
+	./$(BUILD_DIR)/$(BINARY_NAME)
+
+
 test: ## Run tests
 	go test -v $(PKG)
 
