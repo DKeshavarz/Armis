@@ -1,13 +1,15 @@
 package config
 
 import (
-	"log"
 	"os"
 	"strconv"
 	"strings"
 
+	"github.com/DKeshavarz/armis/internal/logger"
 	"github.com/joho/godotenv"
 )
+
+var log = logger.New("config")
 
 func init(){
 	Load(".env")
@@ -16,8 +18,12 @@ func init(){
 func Load(file string){
 	err := godotenv.Load(file)
 	if err != nil {
-		log.Printf("Error in loading .env : %s", err)
+		log.Error("Error in loading .env", logger.Field{
+			Key: "err",
+			Value: err,
+		})
 	}
+	log.Info("gggg")
 }
 
 
