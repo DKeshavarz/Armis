@@ -28,7 +28,7 @@ func New(mainServise servise.ServiceInterfase) *commandsServise {
 
 func (c *commandsServise) Run() error {
 	for {
-		fmt.Print("$ ")
+		fmt.Print("")
 		commands, err := c.read()
 		if err != nil {
 			return fmt.Errorf("error in reading: %s", err)
