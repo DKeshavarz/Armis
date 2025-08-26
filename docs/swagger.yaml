@@ -1,0 +1,128 @@
+basePath: /
+definitions:
+  client.ErrorResponse:
+    properties:
+      error:
+        example: error message
+        type: string
+    type: object
+  client.MessageResponse:
+    properties:
+      key:
+        example: your-key
+        type: string
+      message:
+        example: key stored
+        type: string
+      value:
+        example: your-value
+        type: string
+    type: object
+  client.PutValueRequest:
+    properties:
+      value:
+        example: value
+        type: string
+    type: object
+  client.ValueResponse:
+    properties:
+      key:
+        example: key
+        type: string
+      value:
+        example: value
+        type: string
+    type: object
+info:
+  contact:
+    email: dankeshavarz1075@example.com
+    name: Armis Dev Team
+    url: https://github.com/DKeshavarz/armis
+  description: Simple key-value store service with CRUD operations.
+  termsOfService: http://swagger.io/terms/
+  title: Armis Key-Value Store API
+  version: 0.8.0
+paths:
+  /client/{key}:
+    delete:
+      description: Deletes the key and its value
+      parameters:
+      - description: Key to delete
+        in: path
+        name: key
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/client.MessageResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/client.ErrorResponse'
+      summary: Delete a key
+      tags:
+      - client
+    get:
+      description: Returns the value associated with a key
+      parameters:
+      - description: Key to look up
+        in: path
+        name: key
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/client.ValueResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/client.ErrorResponse'
+      summary: Get a value
+      tags:
+      - client
+    put:
+      consumes:
+      - application/json
+      description: Stores a value under the given key
+      parameters:
+      - description: Key to store
+        in: path
+        name: key
+        required: true
+        type: string
+      - description: Request body with value
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/client.PutValueRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/client.MessageResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/client.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/client.ErrorResponse'
+      summary: Store or update a value
+      tags:
+      - client
+swagger: "2.0"
+tags:
+- description: Operations for managing key-value pairs as a client
+  name: client
