@@ -10,12 +10,12 @@ BRANCH=$(shell git rev-parse --abbrev-ref HEAD)
 
 # Default target
 run: ## Run the app
-	go run $(MAIN)
+	@go run $(MAIN)
 
 all: build ## Build the project (default)
 
 compile: ## Compile (without installing)
-	go build -o $(BUILD_DIR)/$(BINARY_NAME) $(MAIN)
+	@go build -o $(BUILD_DIR)/$(BINARY_NAME) $(MAIN)
 
 build: clean compile
 	./$(BUILD_DIR)/$(BINARY_NAME)
