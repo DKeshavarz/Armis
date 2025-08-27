@@ -13,11 +13,22 @@ type Handler struct {
 
 func RegisterRoutes(group *gin.RouterGroup) {
 	handle := Handler{
-		cluster: nil,
+		cluster: cluster.New("adr", nil , 5, 10),
 	}
 	group.GET("/ping", handle.pingReply)
+	group.POST("/join", handle.joinReply)
 }
 
 func (h *Handler) pingReply(c *gin.Context) {
-	c.JSON(http.StatusOK, map[string]string{"status" : "I am alive"})
+	c.JSON(http.StatusOK, map[string]any{
+		"status": "I am alive",
+		"info" : h.cluster.ACK(),
+	})
+}
+
+func (h *Handler) joinReply(c *gin.Context) {
+	c.JSON(http.StatusOK, map[string]any{
+		"status": "Wellcome",
+		"info" : h.cluster.JoinReply(),
+	})
 }
