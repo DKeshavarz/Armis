@@ -3,6 +3,7 @@ package server
 import (
 	_ "github.com/DKeshavarz/armis/docs"
 	"github.com/DKeshavarz/armis/internal/server/client"
+	"github.com/DKeshavarz/armis/internal/server/cluster"
 	"github.com/DKeshavarz/armis/internal/servise"
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
@@ -34,4 +35,5 @@ func New(servise servise.ServiceInterfase) *gin.Engine {
 
 func setup(r *gin.Engine, servise servise.ServiceInterfase) {
 	client.RegisterRoutes(r.Group("/client"), servise)
+	cluster.RegisterRoutes(r.Group("/cluster"))
 }
