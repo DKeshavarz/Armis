@@ -15,6 +15,7 @@ func init(){
 	Load(".env")
 }
 
+
 func Load(file string){
 	err := godotenv.Load(file)
 	if err != nil {
@@ -24,7 +25,6 @@ func Load(file string){
 		})
 	}
 }
-
 
 func GetEnv(key, defaultValue string) string {
     if value, exists := os.LookupEnv(key); exists {
