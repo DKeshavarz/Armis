@@ -19,7 +19,7 @@ type cluster struct {
 	self           *node
 	network        []*node
 	fanOut         int
-	gossipInterval int
+	gossipInterval time.Duration
 }
 
 type node struct {
@@ -29,10 +29,10 @@ type node struct {
 	Incarnation int
 }
 
-func New(address string, network []string, fanOut, gossipInterval int) Cluster {
+func New(config Congig) Cluster {
 	self := &node{
 		id:          uuid.NewString(),
-		address:     address,
+		address:     config.Self,
 		state:       Alive,
 		Incarnation: 0,
 	}
@@ -40,8 +40,12 @@ func New(address string, network []string, fanOut, gossipInterval int) Cluster {
 	cluster := &cluster{
 		self:           self,
 		network:        make([]*node, 0),
-		fanOut:         fanOut,
-		gossipInterval: gossipInterval,
+		fanOut:         config.FanOut,
+		gossipInterval: time.Duration(config.GossipInterval) * time.Second,
+	}
+
+	for _, val := range config.Network {
+		cluster.network = append(cluster.network, &node{address: val})
 	}
 
 	go cluster.gossip()
