@@ -3,7 +3,7 @@ package cluster
 import (
 	"net/http"
 
-	"github.com/DKeshavarz/armis/internal/cluster"
+	"github.com/DKeshavarz/armis/pkg/cluster"
 	"github.com/gin-gonic/gin"
 )
 
