@@ -23,7 +23,6 @@ func Load(file string){
 			Value: err,
 		})
 	}
-	log.Info("gggg")
 }
 
 
