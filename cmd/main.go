@@ -24,6 +24,12 @@ func main() {
 	
 	mainLogger := logger.New("main")
 
+	conf, _ := config.New()
+	mainLogger.Info("get config", logger.Field{
+		Key: "config",
+		Value: conf,
+	})
+
 	storage := storage.New(
 		config.GetEnvAsBool("STORAGE_AUTO_SAVE", false), 
 		config.GetEnvAsInt("STORAGE_SAVE_INTERVAL", 100), 
