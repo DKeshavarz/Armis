@@ -33,13 +33,24 @@ func (c *cluster) join() {
 	c.network = newNetwork
 }
 
+func (c *cluster) GetUpdate(newNodes... *node){
+	//TODO: add chanel
+	for _, node := range newNodes {
+		node.isValid()
+	}
+}
+// ****************** helpers ************************
 func (c *cluster) selectNodes() []*node {
 	return c.network
 }
 
+func (n *node) isValid()bool{
+	return  n.Id != "" && n.Address != ""
+}
+
 // func ping(url string) []*node {
 
-// 	resp, err := http.Get(url)
+// 	resp, ervr := http.Get(url)
 // 	if err != nil {
 // 		log.Fatalf("Error making GET request: %v", err)
 // 	}
