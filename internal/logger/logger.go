@@ -8,7 +8,7 @@ import (
 
 const (
 	PADSTR = " "
-	MESSAGE_SIZE = 30
+	MESSAGE_SIZE = 50
 )
 
 func New(serviseName string)Logger{
