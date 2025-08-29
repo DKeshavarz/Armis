@@ -12,7 +12,7 @@ type JoinResponse struct {
 }
 
 type JoinRequest struct {
-	Self node `json:"self"`
+	Self *node `json:"self"`
 }
 
 type PingResponse struct {
