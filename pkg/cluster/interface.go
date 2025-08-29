@@ -2,11 +2,13 @@ package cluster
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"log"
 	"net/http"
 	"time"
 
+	"github.com/DKeshavarz/armis/internal/logger"
 	"github.com/google/uuid"
 )
 
@@ -20,20 +22,22 @@ type cluster struct {
 	network        []*node
 	fanOut         int
 	gossipInterval time.Duration
+	logger         logger.Logger
+	client         http.Client
 }
 
 type node struct {
-	id          string
-	address     string
-	state       State
+	Id          string
+	Address     string
+	State       State
 	Incarnation int
 }
 
 func New(config Congig) Cluster {
 	self := &node{
-		id:          uuid.NewString(),
-		address:     config.Self,
-		state:       Alive,
+		Id:          uuid.NewString(),
+		Address:     config.Self,
+		State:       Alive,
 		Incarnation: 0,
 	}
 
@@ -42,10 +46,12 @@ func New(config Congig) Cluster {
 		network:        make([]*node, 0),
 		fanOut:         config.FanOut,
 		gossipInterval: time.Duration(config.GossipInterval) * time.Second,
+		logger:         logger.New("cluster-package"),
+		client:         http.Client{},
 	}
 
 	for _, val := range config.Network {
-		cluster.network = append(cluster.network, &node{address: val})
+		cluster.network = append(cluster.network, &node{Address: val})
 	}
 
 	go cluster.gossip()
@@ -63,23 +69,32 @@ func (c *cluster) JoinReply() []*node {
 
 // **********************************
 func (c *cluster) gossip() {
-	url := "http://localhost:8000/"
-	target := "cluster/ping"
-	ticker := time.NewTicker(time.Duration(c.gossipInterval) * time.Second)
-	time.Sleep(30 * time.Second)
-	log.Println("start gossip")
-	for range 5 {
-		<-ticker.C
-		ping(url + target)
+	//TODO: join an create network
+	c.join()
+	// TODO: send message
+	// TODO:grasfully shutdoin
+
+}
+
+
+func (c *cluster) join() {
+	var resp JoinResponse
+	for _, ip := range c.network {
+		if ip.Address == c.self.Address {
+			continue
+		}
 		
+		url := fmt.Sprintf("%s/%s/%s", PROTOCOL, ip.Address, JOIN)
+		c.logger.Info(url)
+
+		err := c.Post(1, url, JoinRequest{Self: c.self}, &resp)
+
+		c.logger.Info("", logger.Field{Key:"err", Value:err}, 
+		logger.Field{Key:"msg", Value:resp})
 	}
-
 }
 
-type response struct {
-	Status string  `json:"status"`
-	Info   []*node `json:"info"`
-}
+
 
 func ping(url string) []*node {
 
@@ -92,9 +107,9 @@ func ping(url string) []*node {
 	if err != nil {
 		log.Fatalf("Error reading response body: %v", err)
 	}
-	var r response
+	var r JoinResponse
 	json.Unmarshal(body, &r)
-	log.Println("get data:" , r.Status , " \n and \n", r.Info)
+	log.Println("get data:", r.Msg, " \n and \n", r.Info)
 	defer resp.Body.Close()
 	return r.Info
 }
@@ -104,3 +119,5 @@ func ping(url string) []*node {
 func (c *cluster) selectNodes() []*node {
 	return c.network
 }
+
+

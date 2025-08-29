@@ -7,6 +7,8 @@ import (
 	"io"
 	"net/http"
 	"time"
+
+	"github.com/DKeshavarz/armis/internal/logger"
 )
 
 func (c *cluster) doRequest(deadLine int, method, url string, body io.Reader, v interface{}) error {
@@ -65,7 +67,9 @@ func (c *cluster) Put(deadLine int, url string, body interface{}, v interface{})
 		}
 		reader = bytes.NewReader(data)
 	}
-	return c.doRequest(deadLine, http.MethodPut, url, reader, v)
+	err := c.doRequest(deadLine, http.MethodPut, url, reader, v)
+	c.logger.Debug("after put", logger.Field{Key: "put", Value: v})
+	return  err
 }
 
 func (c *cluster) Delete(deadLine int, url string, v interface{}) error {
