@@ -21,6 +21,7 @@ type cluster struct {
 	gossipInterval time.Duration
 	logger         logger.Logger
 	client         client.Client
+	shutdownCh     chan any
 }
 
 type node struct {
@@ -45,6 +46,7 @@ func New(config Congig) Cluster {
 		gossipInterval: time.Duration(config.GossipInterval) * time.Second,
 		logger:         logger.New("cluster-package"),
 		client:         client.New(),
+		shutdownCh:     make(chan any),
 	}
 
 	for _, adr := range config.Network {
@@ -55,7 +57,6 @@ func New(config Congig) Cluster {
 	return cluster
 }
 
-
 func (c *cluster) ACK() map[string]*node {
 	return c.selectNodes()
 }
@@ -63,9 +64,3 @@ func (c *cluster) ACK() map[string]*node {
 func (c *cluster) JoinReply() map[string]*node {
 	return c.network
 }
-
-
-
-
-
-

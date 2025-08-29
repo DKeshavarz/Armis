@@ -2,14 +2,25 @@ package cluster
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/DKeshavarz/armis/internal/logger"
 )
 
 func (c *cluster) gossip() {
-	//TODO: join an create network
 	c.join()
 	// TODO: send message
+	ticker := time.NewTicker(c.gossipInterval)
+
+	for {
+		select{
+		case <- ticker.C:
+			c.logger.Debug("hello i am debug")
+		case <- c.shutdownCh:
+			c.logger.Debug("hello i am shutdown")
+			return
+		}
+	}
 	// TODO:grasfully shutdoin
 
 }
