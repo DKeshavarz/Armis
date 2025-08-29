@@ -10,6 +10,7 @@ BRANCH=$(shell git rev-parse --abbrev-ref HEAD)
 
 # Default target
 run: ## Run the app
+	@clear
 	@go run $(MAIN)
 
 all: build ## Build the project (default)
