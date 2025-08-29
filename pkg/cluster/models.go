@@ -7,7 +7,7 @@ const (
 )
 
 type JoinResponse struct {
-	Msg  string  `json:"status"`
+	Msg  string  `json:"message"`
 	Info []*node `json:"info"`
 }
 
@@ -16,7 +16,7 @@ type JoinRequest struct {
 }
 
 type PingResponse struct {
-	Msg  string  `json:"status"`
+	Msg  string  `json:"message"`
 	Info []*node `json:"info"`
 }
 
