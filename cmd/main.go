@@ -16,6 +16,7 @@ import (
 	"github.com/DKeshavarz/armis/internal/server"
 	"github.com/DKeshavarz/armis/internal/servise"
 	"github.com/DKeshavarz/armis/internal/storage"
+	"github.com/DKeshavarz/armis/pkg/cluster"
 )
 
 func main() {
@@ -37,6 +38,7 @@ func main() {
 	)
 	
 	servise := servise.New(storage)
+	cluster := cluster.New(conf.Cluster)
 
 	cmd := commands.New(servise)
 	go func(){
@@ -46,7 +48,7 @@ func main() {
 		}
 	}()
 
-	server := server.New(servise)
+	server := server.New(servise, cluster)
 	port := config.GetEnv("PORT", "5432")
 	srv := &http.Server{
 		Addr:    ":" + port,
@@ -73,5 +75,8 @@ func main() {
 		mainLogger.Error("Storage forced to shutdown", logger.Field{Key:"err", Value:err})
 	}
 
+	if err := cluster.Shutdown(); err != nil{
+		mainLogger.Error("cluster forced to shutdown", logger.Field{Key:"err", Value:err})
+	}
 	mainLogger.Info("shut down")
 }

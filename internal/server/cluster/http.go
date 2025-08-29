@@ -3,7 +3,6 @@ package cluster
 import (
 	"net/http"
 
-	"github.com/DKeshavarz/armis/internal/config"
 	"github.com/DKeshavarz/armis/internal/logger"
 	"github.com/DKeshavarz/armis/pkg/cluster"
 	"github.com/gin-gonic/gin"
@@ -14,10 +13,9 @@ type Handler struct {
 	logger   logger.Logger
 }
 
-func RegisterRoutes(group *gin.RouterGroup) {
-	cfg, _ := config.New()
+func RegisterRoutes(group *gin.RouterGroup, cluster cluster.Cluster) {
 	handle := Handler{
-		cluster: cluster.New(cfg.Cluster),
+		cluster: cluster,
 		logger: logger.New("cluster-handel"),
 	}
 	group.GET("/ping", handle.pingReply)

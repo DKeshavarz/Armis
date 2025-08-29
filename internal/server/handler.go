@@ -3,8 +3,9 @@ package server
 import (
 	_ "github.com/DKeshavarz/armis/docs"
 	"github.com/DKeshavarz/armis/internal/server/client"
-	"github.com/DKeshavarz/armis/internal/server/cluster"
+	clusterHandle "github.com/DKeshavarz/armis/internal/server/cluster"
 	"github.com/DKeshavarz/armis/internal/servise"
+	clu "github.com/DKeshavarz/armis/pkg/cluster"
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
@@ -24,16 +25,16 @@ import (
 // @tag.name        client
 // @tag.description Operations for managing key-value pairs as a client
 
-func New(servise servise.ServiceInterfase) *gin.Engine {
+func New(servise servise.ServiceInterfase ,cluster clu.Cluster) *gin.Engine {
 	r := gin.Default()
 
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
-	setup(r, servise)
+	setup(r, servise, cluster)
 	return r
 }
 
-func setup(r *gin.Engine, servise servise.ServiceInterfase) {
+func setup(r *gin.Engine, servise servise.ServiceInterfase, cluster clu.Cluster) {
 	client.RegisterRoutes(r.Group("/client"), servise)
-	cluster.RegisterRoutes(r.Group("/cluster"))
+	clusterHandle.RegisterRoutes(r.Group("/cluster"), cluster)
 }
