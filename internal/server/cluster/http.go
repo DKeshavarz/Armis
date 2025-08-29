@@ -1,6 +1,8 @@
 package cluster
 
 import (
+	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/DKeshavarz/armis/internal/config"
@@ -22,15 +24,27 @@ func RegisterRoutes(group *gin.RouterGroup) {
 }
 
 func (h *Handler) pingReply(c *gin.Context) {
-	c.JSON(http.StatusOK, map[string]any{
-		"status": "I am alive",
-		"info" : h.cluster.ACK(),
+	c.JSON(http.StatusOK, cluster.PingResponse{
+		Msg: "Ping ok",
+		Info: h.cluster.ACK(),
 	})
 }
 
 func (h *Handler) joinReply(c *gin.Context) {
-	c.JSON(http.StatusOK, map[string]any{
-		"status": "Wellcome",
-		"info" : h.cluster.JoinReply(),
+	var req cluster.JoinRequest
+    if err := c.ShouldBindJSON(&req); err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{
+            "error": err.Error(),
+        })
+        return
+    }
+
+	fmt.Println("hello" , req)
+	rep := h.cluster.JoinReply()
+
+	log.Println(rep)
+	c.JSON(http.StatusOK, cluster.JoinResponse{
+		Msg:  "Join ok",
+		Info: rep,
 	})
 }
