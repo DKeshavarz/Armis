@@ -12,6 +12,7 @@ type Cluster interface {
 	ACK() map[string]*node
 	JoinReply() map[string]*node
 	GetUpdate(nodes map[string]*node)
+	Shutdown() error
 }
 
 type cluster struct {
@@ -63,4 +64,10 @@ func (c *cluster) ACK() map[string]*node {
 
 func (c *cluster) JoinReply() map[string]*node {
 	return c.network
+}
+
+func (c *cluster)Shutdown() error{
+	close(c.shutdownCh)
+	c.logger.Trace("grasfully shutdown cluster")
+	return nil
 }
