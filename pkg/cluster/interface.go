@@ -23,7 +23,7 @@ type cluster struct {
 }
 
 type node struct {
-	Id          string
+	Id          string ///binding:"required"
 	Address     string
 	State       State
 	Incarnation int

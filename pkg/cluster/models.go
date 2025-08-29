@@ -7,12 +7,12 @@ const (
 )
 
 type JoinResponse struct {
-	Msg  string  `json:"message"`
+	Msg  string  `json:"message"` 
 	Info []*node `json:"info"`
 }
 
 type JoinRequest struct {
-	Self *node `json:"self"`
+	Self *node `json:"self"` //binding:"required"
 }
 
 type PingResponse struct {
