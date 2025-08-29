@@ -9,13 +9,13 @@ import (
 )
 
 type Cluster interface {
-	ACK() []*node
-	JoinReply() []*node
+	ACK() map[string]*node
+	JoinReply() map[string]*node
 }
 
 type cluster struct {
 	self           *node
-	network        []*node
+	network        map[string]*node
 	fanOut         int
 	gossipInterval time.Duration
 	logger         logger.Logger
@@ -39,7 +39,7 @@ func New(config Congig) Cluster {
 
 	cluster := &cluster{
 		self:           self,
-		network:        make([]*node, 0),
+		network:        make(map[string]*node),
 		fanOut:         config.FanOut,
 		gossipInterval: time.Duration(config.GossipInterval) * time.Second,
 		logger:         logger.New("cluster-package"),
@@ -47,7 +47,7 @@ func New(config Congig) Cluster {
 	}
 
 	for _, adr := range config.Network {
-		cluster.network = append(cluster.network, &node{Address: adr})
+		cluster.network[adr] = &node{Address: adr}
 	}
 
 	go cluster.gossip()
@@ -55,11 +55,11 @@ func New(config Congig) Cluster {
 }
 
 
-func (c *cluster) ACK() []*node {
+func (c *cluster) ACK() map[string]*node {
 	return c.selectNodes()
 }
 
-func (c *cluster) JoinReply() []*node {
+func (c *cluster) JoinReply() map[string]*node {
 	return c.network
 }
 

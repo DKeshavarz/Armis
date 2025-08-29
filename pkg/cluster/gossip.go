@@ -2,6 +2,8 @@ package cluster
 
 import (
 	"fmt"
+
+	"github.com/DKeshavarz/armis/internal/logger"
 )
 
 func (c *cluster) gossip() {
@@ -15,7 +17,7 @@ func (c *cluster) gossip() {
 
 func (c *cluster) join() {
 	var resp JoinResponse
-	newNetwork := make([]*node, 0, len(c.network))
+	tmpMap := make(map[string]*node)
 	for _, ip := range c.network {
 		if ip.Address == c.self.Address {
 			continue
@@ -25,12 +27,13 @@ func (c *cluster) join() {
 		err := c.Post(1, url, JoinRequest{Self: c.self}, &resp)
 
 		if err == nil { // other node okay
-			newNetwork = append(newNetwork, resp.Info...)
+			tmpMap = resp.Info
 			break
 		}
 	}
-	newNetwork = append(newNetwork, c.self)
-	c.network = newNetwork
+	c.logger.Debug("check map", logger.Field{Key:"map", Value: tmpMap})
+	c.network = tmpMap
+	c.network[c.self.Address] = c.self
 }
 
 func (c *cluster) GetUpdate(newNodes... *node){
@@ -40,7 +43,7 @@ func (c *cluster) GetUpdate(newNodes... *node){
 	}
 }
 // ****************** helpers ************************
-func (c *cluster) selectNodes() []*node {
+func (c *cluster) selectNodes() map[string]*node {
 	return c.network
 }
 
