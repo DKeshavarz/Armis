@@ -1,23 +1,24 @@
 package cluster
 
 import (
-	"fmt"
-	"log"
 	"net/http"
 
 	"github.com/DKeshavarz/armis/internal/config"
+	"github.com/DKeshavarz/armis/internal/logger"
 	"github.com/DKeshavarz/armis/pkg/cluster"
 	"github.com/gin-gonic/gin"
 )
 
 type Handler struct {
 	cluster cluster.Cluster
+	logger   logger.Logger
 }
 
 func RegisterRoutes(group *gin.RouterGroup) {
 	cfg, _ := config.New()
 	handle := Handler{
 		cluster: cluster.New(cfg.Cluster),
+		logger: logger.New("cluster-handel"),
 	}
 	group.GET("/ping", handle.pingReply)
 	group.POST("/join", handle.joinReply)
@@ -39,10 +40,8 @@ func (h *Handler) joinReply(c *gin.Context) {
         return
     }
 
-	fmt.Println("hello" , req)
 	rep := h.cluster.JoinReply()
 
-	log.Println(rep)
 	c.JSON(http.StatusOK, cluster.JoinResponse{
 		Msg:  "Join ok",
 		Info: rep,
