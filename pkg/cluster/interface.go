@@ -1,10 +1,10 @@
 package cluster
 
 import (
-	"net/http"
 	"time"
 
 	"github.com/DKeshavarz/armis/internal/logger"
+	"github.com/DKeshavarz/armis/pkg/client"
 	"github.com/google/uuid"
 )
 
@@ -20,7 +20,7 @@ type cluster struct {
 	fanOut         int
 	gossipInterval time.Duration
 	logger         logger.Logger
-	client         http.Client
+	client         client.Client
 }
 
 type node struct {
@@ -44,7 +44,7 @@ func New(config Congig) Cluster {
 		fanOut:         config.FanOut,
 		gossipInterval: time.Duration(config.GossipInterval) * time.Second,
 		logger:         logger.New("cluster-package"),
-		client:         http.Client{},
+		client:         client.New(),
 	}
 
 	for _, adr := range config.Network {
