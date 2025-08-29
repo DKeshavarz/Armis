@@ -24,7 +24,7 @@ func (c *cluster) join() {
 		}
 		
 		url := fmt.Sprintf("%s/%s/%s", PROTOCOL, ip.Address, JOIN)
-		err := c.Post(1, url, JoinRequest{Self: c.self}, &resp)
+		err := c.Post(1, url, JoinRequest{Self: map[string]*node{c.self.Address:c.self}}, &resp)
 
 		if err == nil { // other node okay
 			tmpMap = resp.Info
@@ -36,10 +36,29 @@ func (c *cluster) join() {
 	c.network[c.self.Address] = c.self
 }
 
-func (c *cluster) GetUpdate(newNodes... *node){
+func (c *cluster) GetUpdate(nodes map[string]*node){
 	//TODO: add chanel
-	for _, node := range newNodes {
-		node.isValid()
+	//TODO: save for multy thread
+	for adr, node := range nodes{
+		c.logger.Debug("panic happend", 
+		logger.Field{Key: "adr", Value: adr}, 
+		logger.Field{Key: "node", Value: node}, 
+		logger.Field{Key: "netwrot", Value: c.network})
+		if _, ok := c.network[adr]; !ok {
+			c.network[adr] = node
+			continue
+		}
+
+		if !node.isValid() || *c.network[adr] == *node || c.network[adr].Incarnation > node.Incarnation{ //WTF ???? works ok but WTF
+			continue
+		}
+
+		c.logger.Debug("do you seee hereeeeee ??")
+		if c.network[adr].Incarnation < node.Incarnation {
+			c.network[adr] = node
+		}else if c.network[adr].State < node.State{ // equal Incarnation
+			c.network[adr] = node
+		}
 	}
 }
 // ****************** helpers ************************

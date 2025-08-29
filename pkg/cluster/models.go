@@ -12,7 +12,7 @@ type JoinResponse struct {
 }
 
 type JoinRequest struct {
-	Self *node `json:"self"` //binding:"required"
+	Self map[string]*node `json:"self"` //binding:"required"
 }
 
 type PingResponse struct {

@@ -11,6 +11,7 @@ import (
 type Cluster interface {
 	ACK() map[string]*node
 	JoinReply() map[string]*node
+	GetUpdate(nodes map[string]*node)
 }
 
 type cluster struct {

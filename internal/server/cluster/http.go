@@ -41,6 +41,7 @@ func (h *Handler) joinReply(c *gin.Context) {
     }
 
 	h.logger.Debug("get join body", logger.Field{Key: "body", Value: req})
+	h.cluster.GetUpdate(req.Self)
 	rep := h.cluster.JoinReply()
 
 	c.JSON(http.StatusOK, cluster.JoinResponse{
