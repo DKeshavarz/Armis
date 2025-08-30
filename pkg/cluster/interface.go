@@ -59,7 +59,7 @@ func New(config Congig) Cluster {
 }
 
 func (c *cluster) ACK() map[string]*node {
-	return c.selectNodes()
+	return c.selectNodes(c.fanOut)
 }
 
 func (c *cluster) JoinReply() map[string]*node {

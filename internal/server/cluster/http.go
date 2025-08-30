@@ -23,9 +23,10 @@ func RegisterRoutes(group *gin.RouterGroup, cluster cluster.Cluster) {
 }
 
 func (h *Handler) pingReply(c *gin.Context) {
+	resp := h.cluster.ACK()
 	c.JSON(http.StatusOK, cluster.PingResponse{
 		Msg: "Ping ok",
-		Info: h.cluster.ACK(),
+		Info: resp,
 	})
 }
 
