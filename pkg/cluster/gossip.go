@@ -13,10 +13,10 @@ func (c *cluster) gossip() {
 	ticker := time.NewTicker(c.gossipInterval)
 
 	for {
-		select{
-		case <- ticker.C:
-			c.logger.Debug("hello i am debug")
-		case <- c.shutdownCh:
+		select {
+		case <-ticker.C:
+			c.ping()
+		case <-c.shutdownCh:
 			c.logger.Debug("hello i am shutdown")
 			return
 		}
@@ -25,7 +25,6 @@ func (c *cluster) gossip() {
 
 }
 
-
 func (c *cluster) join() {
 	var resp JoinResponse
 	tmpMap := make(map[string]*node)
@@ -33,68 +32,71 @@ func (c *cluster) join() {
 		if ip.Address == c.self.Address {
 			continue
 		}
-		
-		url := fmt.Sprintf("%s/%s/%s", PROTOCOL, ip.Address, JOIN)
-		err := c.client.Post(1, url, JoinRequest{Self: map[string]*node{c.self.Address:c.self}}, &resp)
 
-		if err == nil { // other node okay
+		url := fmt.Sprintf("%s/%s/%s", PROTOCOL, ip.Address, JOIN)
+		err := c.client.Post(1, url, JoinRequest{Self: map[string]*node{c.self.Address: c.self}}, &resp)
+
+		if err == nil {
 			tmpMap = resp.Info
 			break
 		}
 	}
-	c.logger.Debug("check map", logger.Field{Key:"map", Value: tmpMap})
+	c.logger.Debug("check map", logger.Field{Key: "map", Value: tmpMap})
 	c.network = tmpMap
 	c.network[c.self.Address] = c.self
 }
 
-func (c *cluster) GetUpdate(nodes map[string]*node){
+func (c *cluster) GetUpdate(nodes map[string]*node) {
 	//TODO: add chanel
 	//TODO: save for multy thread
-	for adr, node := range nodes{
-		c.logger.Debug("panic happend", 
-		logger.Field{Key: "adr", Value: adr}, 
-		logger.Field{Key: "node", Value: node}, 
-		logger.Field{Key: "netwrot", Value: c.network})
+	for adr, node := range nodes {
 		if _, ok := c.network[adr]; !ok {
 			c.network[adr] = node
 			continue
 		}
 
-		if !node.isValid() || *c.network[adr] == *node || c.network[adr].Incarnation > node.Incarnation{ //WTF ???? works ok but WTF
+		if !node.isValid() || *c.network[adr] == *node || c.network[adr].Incarnation > node.Incarnation { //WTF ???? works ok but WTF
 			continue
 		}
 
-		c.logger.Debug("do you seee hereeeeee ??")
 		if c.network[adr].Incarnation < node.Incarnation {
 			c.network[adr] = node
-		}else if c.network[adr].State < node.State{ // equal Incarnation
+		} else if c.network[adr].State < node.State { // equal Incarnation
 			c.network[adr] = node
 		}
 	}
 }
+
 // ****************** helpers ************************
-func (c *cluster) selectNodes() map[string]*node {
+func (c *cluster) selectNodes(nodeCnt int) map[string]*node {
 	return c.network
 }
 
-func (n *node) isValid()bool{
-	return  n.Id != "" && n.Address != ""
+func (n *node) isValid() bool {
+	return n.Id != "" && n.Address != ""
 }
 
-// func ping(url string) []*node {
+func (c *cluster) ping(){
+	nodes := c.selectNodes(c.fanOut)
+	for adr := range nodes {
+		if adr == c.self.Address {
+			continue
+		}
+		url := fmt.Sprintf("%s/%s/%s", PROTOCOL, adr, PING)
 
-// 	resp, ervr := http.Get(url)
-// 	if err != nil {
-// 		log.Fatalf("Error making GET request: %v", err)
-// 	}
+		go func (url string) {
+			var resp PingResponse
+			err := c.client.Get(1, url, &resp)
+			if err != nil {
+				c.logger.Error("catch error in calling api", logger.Field{
+					Key: "error",
+					Value: err,
+				})
+				return
+			}
 
-// 	body, err := io.ReadAll(resp.Body)
-// 	if err != nil {
-// 		log.Fatalf("Error reading response body: %v", err)
-// 	}
-// 	var r JoinResponse
-// 	json.Unmarshal(body, &r)
-// 	log.Println("get data:", r.Msg, " \n and \n", r.Info)
-// 	defer resp.Body.Close()
-// 	return r.Info
-// }
+			c.GetUpdate(resp.Info)
+		}(url)
+		
+	}
+}
