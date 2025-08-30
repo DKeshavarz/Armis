@@ -1,6 +1,7 @@
 package cluster
 
 import (
+	"sync"
 	"time"
 
 	"github.com/DKeshavarz/armis/internal/logger"
@@ -23,6 +24,7 @@ type cluster struct {
 	logger         logger.Logger
 	client         client.Client
 	shutdownCh     chan any
+	mu             sync.RWMutex
 }
 
 type node struct {
@@ -30,6 +32,8 @@ type node struct {
 	Address     string
 	State       State
 	Incarnation int
+	SuspectTime time.Time
+	DeadTime    time.Time
 }
 
 func New(config Congig) Cluster {
@@ -55,6 +59,7 @@ func New(config Congig) Cluster {
 	}
 
 	go cluster.gossip()
+
 	return cluster
 }
 
@@ -66,7 +71,7 @@ func (c *cluster) JoinReply() map[string]*node {
 	return c.network
 }
 
-func (c *cluster)Shutdown() error{
+func (c *cluster) Shutdown() error {
 	close(c.shutdownCh)
 	c.logger.Trace("grasfully shutdown cluster")
 	return nil

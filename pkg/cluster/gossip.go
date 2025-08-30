@@ -26,6 +26,9 @@ func (c *cluster) gossip() {
 }
 
 func (c *cluster) join() {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
 	var resp JoinResponse
 	tmpMap := make(map[string]*node)
 	for _, ip := range c.network {
@@ -47,6 +50,8 @@ func (c *cluster) join() {
 }
 
 func (c *cluster) GetUpdate(nodes map[string]*node) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
 	//TODO: add chanel
 	//TODO: save for multy thread
 	for adr, node := range nodes {
@@ -69,6 +74,9 @@ func (c *cluster) GetUpdate(nodes map[string]*node) {
 
 // ****************** helpers ************************
 func (c *cluster) selectNodes(nodeCnt int) map[string]*node {
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+	
 	return c.network
 }
 
