@@ -76,7 +76,7 @@ func (c *cluster) GetUpdate(nodes map[string]*node) {
 func (c *cluster) selectNodes(nodeCnt int) map[string]*node {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
-	
+
 	return c.network
 }
 
@@ -92,7 +92,7 @@ func (c *cluster) ping(){
 		}
 		url := fmt.Sprintf("%s/%s/%s", PROTOCOL, adr, PING)
 
-		go func (url string) {
+		go func (url, adr string) {
 			var resp PingResponse
 			err := c.client.Get(1, url, &resp)
 			if err != nil {
@@ -100,11 +100,27 @@ func (c *cluster) ping(){
 					Key: "error",
 					Value: err,
 				})
+				c.findSuspect(adr)
 				return
 			}
 
 			c.GetUpdate(resp.Info)
-		}(url)
+		}(url, adr)
 		
+	}
+}
+
+func (c *cluster) findSuspect(key string){
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
+	n, ok := c.network[key]
+	if !ok {
+		return
+	}
+
+	if n.State == Alive {
+		n.State = Suspect
+		n.SuspectTime = time.Now()
 	}
 }
