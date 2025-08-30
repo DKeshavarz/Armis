@@ -36,7 +36,7 @@ func (c *cluster) join() {
 		url := fmt.Sprintf("%s/%s/%s", PROTOCOL, ip.Address, JOIN)
 		err := c.client.Post(1, url, JoinRequest{Self: map[string]*node{c.self.Address: c.self}}, &resp)
 
-		if err == nil {
+		if err == nil && resp.Info != nil{
 			tmpMap = resp.Info
 			break
 		}
