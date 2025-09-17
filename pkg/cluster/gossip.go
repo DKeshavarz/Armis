@@ -2,6 +2,7 @@ package cluster
 
 import (
 	"fmt"
+	"math/rand/v2"
 	"time"
 
 	"github.com/DKeshavarz/armis/internal/logger"
@@ -39,7 +40,7 @@ func (c *cluster) join() {
 		url := fmt.Sprintf("%s/%s/%s", PROTOCOL, ip.Address, JOIN)
 		err := c.client.Post(1, url, JoinRequest{Self: map[string]*node{c.self.Address: c.self}}, &resp)
 
-		if err == nil && resp.Info != nil{
+		if err == nil && resp.Info != nil {
 			tmpMap = resp.Info
 			break
 		}
@@ -76,15 +77,30 @@ func (c *cluster) GetUpdate(nodes map[string]*node) {
 func (c *cluster) selectNodes(nodeCnt int) map[string]*node {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
+	if nodeCnt > len(c.network) {
+		return c.network
+	}
 
-	return c.network
+	selected := make(map[string]*node)
+	keys := make([]string, 0, len(c.network))
+	for k := range c.network {
+		keys = append(keys, k)
+	}
+	rand.Shuffle(len(keys), func(i, j int) { keys[i], keys[j] = keys[j], keys[i] })
+
+	for i := 0; i < nodeCnt; i++ {
+		key := keys[i]
+		selected[key] = c.network[key]
+	}
+
+	return selected
 }
 
 func (n *node) isValid() bool {
 	return n.Id != "" && n.Address != ""
 }
 
-func (c *cluster) ping(){
+func (c *cluster) ping() {
 	nodes := c.selectNodes(c.fanOut)
 	for adr := range nodes {
 		if adr == c.self.Address {
@@ -92,12 +108,12 @@ func (c *cluster) ping(){
 		}
 		url := fmt.Sprintf("%s/%s/%s", PROTOCOL, adr, PING)
 
-		go func (url, adr string) {
+		go func(url, adr string) {
 			var resp PingResponse
 			err := c.client.Get(1, url, &resp)
 			if err != nil {
 				c.logger.Error("catch error in calling api", logger.Field{
-					Key: "error",
+					Key:   "error",
 					Value: err,
 				})
 				c.findSuspect(adr)
@@ -106,11 +122,11 @@ func (c *cluster) ping(){
 
 			c.GetUpdate(resp.Info)
 		}(url, adr)
-		
+
 	}
 }
 
-func (c *cluster) findSuspect(key string){
+func (c *cluster) findSuspect(key string) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
